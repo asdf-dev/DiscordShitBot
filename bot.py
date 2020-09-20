@@ -16,6 +16,17 @@ async def on_ready():
     print('Bot ready')
 
 
+@client.command(aliases=['commands'])
+async def Commands(ctx):
+    try:
+        svar = 'Commands:\n' + '\n'.join(triggers)
+        await ctx.send(svar)
+    except TypeError as e:
+        print("TypeError:", e)
+    except discord.HTTPException as e:
+        print("http fuckup: ", e)
+
+
 @client.command(aliases=['klokken'])
 async def BuyMonner(ctx):
     try:
