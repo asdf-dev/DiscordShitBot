@@ -1,15 +1,26 @@
 import discord
 import os
+from datetime import date
 from discord.ext import commands
 
 triggers = [
-    '!klokken',
-    '!commands'
+    '**!commands** - *denne besked*',
+    '**!settilbud** - *eg. !settilbud monner 10kr netto*',
+    '**!tilbud** - *se tilbud*'
 ]
+Token = "NzU3MTk3NDMwOTgxNjU2NTk2.X2c5Dw.o0v-HcoMhBpNgmxHRyzRJlBaw8g" #fake btw
 
-Token = "NzU2NjI1MjYwMzkyMDg3NjIz.X2UkLw.PzEtwxWL1TI9LB1ocXM6GGVuvVo" #fake btw
+SpottetTilbud = ""
 
-client = commands.Bot(command_prefix = '!')
+#How to run with env's
+#docker run -e Token=test ... <image-name> ...
+if "Token" in os.environ:
+    Token = os.environ['Token']
+    pass
+
+
+client = commands.Bot(command_prefix = '!', help_command=None)
+
 
 @client.event
 async def on_ready():
@@ -26,22 +37,36 @@ async def Commands(ctx):
     except discord.HTTPException as e:
         print("http fuckup: ", e)
 
-
-@client.command(aliases=['klokken'])
-async def BuyMonner(ctx):
+@client.command(aliases=['settilbud']) #bedre navn plx husk at rette i commands
+async def NytTilbud(ctx, *spot):
     try:
-        await ctx.send('Det monner tid!')
+        SetTilbud(" ".join(spot), ctx.message.author.name) #bruger name - da display navn kan skiftes efter kald.
+        await ctx.message.add_reaction("👍")
     except TypeError as e:
         print("TypeError:", e)
     except discord.HTTPException as e:
         print("http fuckup: ", e)
 
 
-#How to run with env's
-#docker run -e Token=test ... <image-name> ...
-if "Token" in os.environ:
-    Token = os.environ['Token']
-    pass
 
+@client.command(aliases=['tilbud'])
+async def GetTilbudBot(ctx):
+    try:
+        await ctx.send(getTilbud())
+    except TypeError as e:
+        print("TypeError:", e)
+    except discord.HTTPException as e:
+        print("http fuckup: ", e)
+
+def SetTilbud(tilbud, navn):
+    global SpottetTilbud
+    Idag = date.today().strftime("%d/%m/%Y")
+    _tilbud = "{}: {} \nSidst opdateret: {}".format(navn, tilbud, Idag)
+    SpottetTilbud = _tilbud
+
+def getTilbud():
+    if not SpottetTilbud:
+        return "intet fundet" 
+    return SpottetTilbud
 
 client.run(Token)
