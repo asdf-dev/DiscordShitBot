@@ -40,6 +40,17 @@ async def Commands(ctx):
 @client.command(aliases=['settilbud']) #bedre navn plx husk at rette i commands
 async def NytTilbud(ctx, *spot):
     try:
+        if not spot:
+            print("user error empty call")
+            await ctx.message.add_reaction("💔")
+            await ctx.send("WRONG!\nBrug: `!settilbud monner 10kr i netto`")
+            return
+
+        if not any(char.isdigit() for char in " ".join(spot)):
+            await ctx.message.add_reaction("😡")
+            await ctx.send("HOV!!!!!!!\nDu glemte prisen")
+            return
+
         SetTilbud(" ".join(spot), ctx.message.author.name) #bruger name - da display navn kan skiftes efter kald.
         await ctx.message.add_reaction("👍")
     except TypeError as e:
